@@ -18,9 +18,9 @@ requires-python = "~=3.7"
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["black", "pylint", "bandit"]
+dev = ["flit", "black", "pylint", "bandit"]
 test = ["tox", "pytest"]
-docs = ["sphinx"]
+docs = ["sphinx", "sphinx-rtd-theme"]
 
 [project.urls]
 Source = "{{ cookiecutter.package_url }}"
