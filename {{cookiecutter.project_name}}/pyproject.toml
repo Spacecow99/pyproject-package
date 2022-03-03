@@ -20,7 +20,7 @@ dependencies = []
 [project.optional-dependencies]
 dev = ["flit", "black", "pylint", "bandit"]
 test = ["tox", "pytest"]
-docs = ["sphinx", "sphinx-rtd-theme"]
+docs = ["sphinx", "sphinx-rtd-theme", "myst-parser"]
 
 [project.urls]
 Source = "{{ cookiecutter.package_url }}"
