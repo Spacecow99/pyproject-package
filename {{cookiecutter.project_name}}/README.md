@@ -1,18 +1,17 @@
-{{ cookiecutter.package_name }}
-===============================
+# {{ cookiecutter.package_name }}
 
 {{ cookiecutter.package_description }}
 
-Usage
------
+## Usage
 
-Installation
-------------
+## Installation
 
-Requirements
-------------
+```shell
+$ pip install .
+```
 
-Authors
--------
+## Requirements
+
+## Authors
 
 ``{{ cookiecutter.package_name }}`` was written by ``{{ cookiecutter.author_name }}`` <{{ cookiecutter.author_email }}>.

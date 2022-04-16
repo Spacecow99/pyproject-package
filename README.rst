@@ -1,2 +1,0 @@
-Pyproject.toml Package Cookiecutter
-===================================
