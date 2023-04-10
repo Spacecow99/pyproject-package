@@ -6,7 +6,7 @@ build-backend = "flit_core.buildapi"
 name = "{{ cookiecutter.project_name }}"
 authors = [{name = "{{ cookiecutter.author_name }}", email = "{{ cookiecutter.author_email }}"}]
 maintainers = [{name = "{{ cookiecutter.author_name }}", email = "{{ cookiecutter.author_email }}"}]
-readme = "README.rst"
+readme = "README.md"
 dynamic = ["version", "description"]
 classifiers = [
     "Private :: Do Not Upload",
