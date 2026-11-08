@@ -32,7 +32,7 @@ name = "{{ cookiecutter.package_name }}"
 legacy_tox_ini = """
 [tox]
 isolated_build = True
-envlist = py37,py38,py39
+envlist = py37,py38,py39,py310,py311,py312,py313,py314,py315
 
 [testenv]
 deps = pytest
@@ -41,7 +41,7 @@ commands = py.test tests
 
 [tool.black]
 line-length = 80
-target-version = ["py37", "py38", "py39"]
+target-version = ["py37", "py38", "py39", "py310"]
 include = "\\.py[iw]?$"
 
 [tool.bandit]
