@@ -4,10 +4,12 @@
 
 ## Usage
 
-## Installation
+## Development Installation
+
+Run this from the generated project root:
 
 ```shell
-$ pip install .
+$ flit install --symlink
 ```
 
 ## Requirements
