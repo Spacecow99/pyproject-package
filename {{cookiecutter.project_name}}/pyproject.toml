@@ -36,7 +36,7 @@ envlist = py37,py38,py39
 
 [testenv]
 deps = pytest
-commands = py.test {{ cookiecutter.package_name }}
+commands = py.test tests
 """
 
 [tool.black]
