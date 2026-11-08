@@ -32,7 +32,7 @@ name = "{{ cookiecutter.package_name }}"
 legacy_tox_ini = """
 [tox]
 isolated_build = True
-envlist = py37,py38,py39
+envlist = py37,py38,py39,py310
 
 [testenv]
 deps = pytest
