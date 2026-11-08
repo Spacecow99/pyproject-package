@@ -8,4 +8,4 @@ __version__ = "{{cookiecutter.package_version}}"
 
 
 def sum(a, b):
-	return a + b
+    return a + b
