@@ -10,5 +10,8 @@
 
 ## Commands
 
-- Run tests with `pytest tests`.
+- Run tests with `pytest tests` or the configured Tox environments with `tox`.
+- Check formatting with `black --check .`.
+- Run Pylint with `pylint {{ cookiecutter.package_name }}`.
+- Run Bandit with `bandit -r {{ cookiecutter.package_name }}`.
 - Build the package with `flit build`.
