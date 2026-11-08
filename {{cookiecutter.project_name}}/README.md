@@ -7,7 +7,7 @@
 ## Installation
 
 ```shell
-$ pip install .
+$ flit install --symlink
 ```
 
 ## Requirements
