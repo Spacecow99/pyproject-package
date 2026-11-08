@@ -36,12 +36,12 @@ envlist = py37,py38,py39,py310
 
 [testenv]
 deps = pytest
-commands = py.test {{ cookiecutter.package_name }}
+commands = py.test tests
 """
 
 [tool.black]
 line-length = 80
-target-version = ["py37", "py38", "py39"]
+target-version = ["py37", "py38", "py39", "py310"]
 include = "\\.py[iw]?$"
 
 [tool.bandit]
