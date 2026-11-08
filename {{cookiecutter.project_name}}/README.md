@@ -4,7 +4,9 @@
 
 ## Usage
 
-## Installation
+## Development Installation
+
+Run this from the generated project root:
 
 ```shell
 $ flit install --symlink
