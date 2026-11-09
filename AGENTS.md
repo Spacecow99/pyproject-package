@@ -7,23 +7,32 @@ itself and is not part of generated projects.
 
 ## Branching model
 
+The normal model is `main` <- `dev` <- `feature/<feature name>`. When an agent
+forces its own branch, the model is
+`main` <- `dev` <- `claude/<session>` <- `feature/<feature name>`. See "Agent
+branches" below.
+
 | Branch             | Purpose                                              | Branches from | Merges into |
 |--------------------|------------------------------------------------------|---------------|-------------|
 | `main`             | Stable, released state of the template.              | n/a           | n/a         |
 | `dev`              | Integration branch. All feature work lands here.     | `main`        | `main`      |
-| `feature/<name>`   | One feature, fix or documentation change.            | `dev`         | `dev`       |
+| `claude/<session>` | Only when an agent forces its own branch. Collects that session's features. | `dev` | `dev` |
+| `feature/<name>`   | One feature, fix or documentation change.            | `dev`, or the agent branch when one is forced | `dev`, or the agent branch when one is forced |
 
 ### Rules
 
 1. `dev` is created from `main` and is the base for all new work.
 2. Every change is made on a feature branch named `feature/<feature name>`.
    Use lowercase words separated by hyphens, for example
-   `feature/add-pre-commit-config`.
+   `feature/add-pre-commit-config`. If your agent forces its own branch, see
+   "Agent branches".
 3. Create feature branches from the latest `dev`, never from `main` and never
    from another feature branch:
    `git fetch origin dev && git checkout -b feature/<name> origin/dev`
+   When your agent forces its own branch, create the feature branch from that
+   agent branch instead (see "Agent branches").
 4. Never commit directly to `main` or `dev`. Open a pull request from the
-   feature branch into `dev`.
+   feature branch into `dev`, or into the agent branch when one is forced.
 5. Changes reach `main` only through a pull request from `dev` into `main`.
 6. Never open a pull request from a feature branch directly into `main`.
 7. Keep each feature branch focused on one change. If the change references a
@@ -31,18 +40,78 @@ itself and is not part of generated projects.
    that GitHub only auto-closes issues when the pull request merges into the
    default branch (`main`), so issues resolved on `dev` stay open until `dev`
    is merged; close them manually with a comment if they must be closed sooner.
-8. After a feature branch is merged into `dev`, delete it. Do not reuse a
-   merged branch for new work; create a new `feature/<name>` branch from the
-   latest `dev`.
+8. After a feature branch is merged, delete it. If you cannot delete it, ask
+   the owner to (see "Agent branches", step 7). Do not reuse a merged branch for new work; create a new
+   `feature/<name>` branch from the latest `dev`. (The assigned agent branch
+   is the exception; see "Agent branches".)
 9. Do not rewrite history on `main` or `dev`. Never force-push to them.
 
-### Session branch override
+### Agent branches
 
-If a task or the environment names a specific branch to develop on (for
-example an automatically assigned `claude/...` branch), push only to that
-branch and follow the task's instructions for it. Open the pull request into
-`dev` unless told otherwise. Do not push to any other branch without explicit
-permission.
+Some agents force their work onto an assigned branch and can push only there.
+Claude Code remote sessions are the known case: each session is assigned a
+branch such as `claude/brave-hawking-szgbsr`. Treat any agent-assigned branch
+the same way. The model then has one more level:
+`main` <- `dev` <- `claude/<session>` <- `feature/<feature name>`.
+
+1. **Base the agent branch on `dev`.** Before any work, fetch and base the
+   assigned branch on `dev`, never on `main`:
+   `git fetch origin dev && git checkout -B <assigned branch> origin/dev`
+   This also applies when the session starts on a fresh clone of `main`, and
+   when the assigned branch already exists and holds only work that has been
+   merged. Rule 8 ("do not reuse a merged branch") does not apply to the
+   assigned branch; reset it to `dev` instead.
+2. **Keep unmerged work.** If the assigned branch has commits that are not in
+   `dev`, keep them and merge `origin/dev` into the branch rather than
+   resetting it.
+3. **Create a feature branch.** A remote session can push a new
+   `feature/<feature name>` branch (verified on 2026-11-09), so create it from
+   the assigned branch and push it:
+
+   ```shell
+   git checkout -b feature/FEATURE_NAME ASSIGNED_BRANCH
+   git push -u origin feature/FEATURE_NAME
+   ```
+
+   Replace `FEATURE_NAME` and `ASSIGNED_BRANCH` with your values. If the push
+   is refused, for example with HTTP 403, do not look for a workaround. Return
+   to the assigned branch, make the commits there instead, and say in the pull
+   request description that the feature branch could not be pushed. Permissions
+   can change, so try the push each time.
+4. **Pull requests.** Open a feature branch's pull request into the assigned
+   branch. Open the assigned branch's pull request into `dev`. If you worked
+   directly on the assigned branch, open one pull request into `dev`.
+5. **Never force-push.** If restarting the assigned branch would require a
+   force push, stop and ask the owner.
+6. **No other branches.** Push only to the assigned branch and to the
+   `feature/<feature name>` branches you create under step 3. Do not push to
+   any other branch without explicit permission.
+7. **Cleaning up.** A remote session cannot delete remote branches: deleting a
+   branch with `git push origin --delete` is refused with HTTP 403 (verified on
+   2026-11-09), and the available GitHub tools have no delete-branch action. Do
+   not look for a workaround. Instead, ask the maintainer to delete every
+   feature branch you push, in both of these ways:
+   1. **Add a task to the issue.** When you create the feature branch, add a
+      task for the human maintainer to the issue you are working on, in the
+      issue body, for example
+      `- [ ] Maintainer: delete branch feature/FEATURE_NAME after it merges`.
+      Replace `FEATURE_NAME` with the branch name. If the work has no issue,
+      add the task as a comment on the pull request. Check the box only after
+      the branch is gone.
+   2. **Ask in the session.** Say to the maintainer, in your chat with them,
+      that the branch needs deleting. Name the branch and include the
+      command to run, for example
+      `git push origin --delete feature/FEATURE_NAME`. Ask once the feature
+      branch has merged, and again in your final message of the session if the
+      branch still exists. Do not assume the maintainer has seen the issue
+      task.
+
+   Enabling "Automatically delete head branches" in the repository settings
+   deletes branches that merge through a pull request, but it does not remove
+   a branch that never had one.
+
+If a task names a different branch to develop on, follow the task's
+instructions for it, and still base it on `dev`.
 
 ## Workflow artifacts live in GitHub issues
 
@@ -97,7 +166,8 @@ One feature maps to one parent issue plus one sub-issue per plan task.
    after its tests pass.
 4. **Deviations.** If you depart from the plan, post a `Ruling:` comment
    explaining what changed and why before continuing.
-5. **Finishing.** Open the pull request into `dev` per the branching model.
+5. **Finishing.** Open the pull request into the branch the branching model
+   names: `dev`, or the agent branch when one is forced.
    Reference the feature issue with `Refs #<feature issue>` because `Closes`
    does not fire on merges into `dev`. Close the feature issue manually once
    its work reaches `main`, or earlier with a comment if the owner agrees.
