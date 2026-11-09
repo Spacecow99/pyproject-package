@@ -1,0 +1,4 @@
+# Disposable local cache for agent workflow files (superpowers ledger, briefs,
+# working copies of specs and plans). GitHub issues are the source of truth;
+# never commit this folder.
+.superpowers/
