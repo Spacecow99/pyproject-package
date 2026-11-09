@@ -140,64 +140,52 @@ comment). The GitHub write is the one that counts.
 
 ## Style guide
 
-All Python code, in this repository and in the template, follows the
-[Google Python Style Guide](https://google.github.io/styleguide/pyguide.html).
-If this section and the Google guide disagree, the Google guide wins, unless
-the repository's tool configuration in `pyproject.toml` explicitly says
-otherwise. The rules below were checked against the published guide on
-2026-11-09.
+All code and markup in this repository, and in anything the template
+generates, follows the Google style guide for its language. The full set of
+guides is published at <https://google.github.io/styleguide/>. This applies to
+every language, now and in the future, and it applies equally to new files and
+to edits of existing files.
 
 Rules agents must apply:
 
-- **Formatting.** Use 4-space indentation, never tabs. Keep lines to 80
-  characters (long URLs and import lines are the only exceptions). Run
-  `black --check .` as configured in `pyproject.toml`; do not change the
-  Black settings to make a change pass.
-- **Imports.** Put one import per line, grouped as standard library, third
-  party, then local, with a blank line between groups. Import packages and
-  modules, not individual classes or functions, except for names from
-  `typing` and `collections.abc`. Do not use wildcard imports.
-- **Naming.** Use `lower_with_under` for modules, packages, functions,
-  methods, variables and parameters. Use `CapWords` for classes and
-  exceptions. Use `CAPS_WITH_UNDER` for constants. Prefix internal names with
-  a single underscore.
-- **Docstrings.** Give every public module, class, function and method a
-  docstring in triple double quotes. Start with a one-line summary that ends
-  with a period. Document arguments, return values and raised exceptions in
-  `Args:`, `Returns:` (or `Yields:`) and `Raises:` sections.
-- **Type annotations.** Annotate the signatures of public functions and
-  methods. Keep annotations compatible with the Python versions the project
-  supports (see `requires-python` in `pyproject.toml`).
-- **Language use.** Never use mutable objects as default argument values.
-  Compare to `None` with `is` or `is not`. Do not end lines with semicolons or
-  use them to join statements. Do not use a bare `except:`, and do not catch
-  `Exception` unless you re-raise it or are creating an isolation point that
-  records and suppresses errors. Format strings with an f-string, the `%`
-  operator or `str.format`, and do not format with `+`. For logging calls that
-  take a pattern string, pass a string literal with `%` placeholders and
-  arguments, not an f-string.
-- **Comments.** Explain why, not what. Write TODOs as
-  `# TODO(<link to issue>): <explanation>`, for example
-  `# TODO(github.com/Spacecow99/pyproject-package/issues/123): Remove the shim.`
-  Do not put a person or team name in the parentheses (the older
-  `# TODO: <link> - <explanation>` form is discouraged).
-- **Tests.** Name test files `test_*.py` and test functions `test_*` with a
-  descriptive name, and keep them under `tests/`.
-- **Linting.** Run Pylint and Bandit as documented in
-  `.claude/INSTRUCTIONS.md` of generated projects. Do not shadow built-in
-  names (Pylint reports this as `redefined-builtin`). Fix findings in new code
-  rather than adding suppressions. If a suppression is appropriate, use a
-  line-level comment with the symbolic message name, for example
-  `# pylint: disable=invalid-name`, and add an explanation when the name alone
-  does not make the reason clear.
+- **Identify the language first.** Before writing or editing a file, work out
+  its language, then open the matching guide from the index above and follow it
+  for formatting, naming, imports or includes, comments and documentation
+  comments, error handling, and language features to avoid. Do not rely on
+  memory of the rules; read the guide when you are unsure.
+- **The Google guide wins.** If it conflicts with your habits, another
+  guide, or an agent default, follow the Google guide. The only exception is a
+  setting that the repository's own tool configuration (formatter, linter,
+  or compiler options) explicitly sets, such as a line length. Where the
+  configuration is silent, the Google guide applies.
+- **No guide for the language.** If Google publishes no guide for a language,
+  follow the conventions already used in the repository, and say in the pull
+  request description that no Google guide applied.
+- **Use the configured tooling.** Run the repository's formatter, linter and
+  security checks on every change. Never loosen, disable or work around tool
+  configuration to make a change pass.
+- **Suppressions.** Fix findings in new code rather than suppressing them. If
+  a suppression is appropriate, scope it as narrowly as the tool allows, name
+  the specific rule, and add an explanation when the rule name alone does not
+  make the reason clear.
+- **Public interfaces.** Document every public interface using the comment or
+  documentation format the guide prescribes, and follow the guide's rules on
+  typing or interface declarations where the language has them.
+- **TODOs.** Write TODO comments in the format the guide prescribes, with a
+  link to an issue as the context. Do not put a person or team name in the
+  context.
+- **Focused changes.** Do not reformat or restyle unrelated code in a change.
+  Existing code that deviates from the guide is not a model: do not copy the
+  deviation into new code, and do not mass-fix it unless the task asks you to.
+- **Tests.** Test code follows the same guide as the code it tests.
 
 ## Documentation style guide
 
 All prose documentation follows the
 [Google developer documentation style guide](https://developers.google.com/style).
 This covers `README.md` files (root and template), this file, issue and pull
-request text, and any docs under `docs/`. Code comments and docstrings follow
-the Style guide section above, and the rules here apply to their wording.
+request text, and any docs under `docs/`. Code comments and documentation comments
+follow the Style guide section above, and the rules here apply to their wording.
 
 Rules agents must apply:
 
@@ -235,8 +223,9 @@ In the template, keep Cookiecutter variables such as
 
 ## Before you open a pull request
 
-- Check changed Python against the Style guide section and changed prose
-  against the Documentation style guide section.
+- Check changed code against the Google style guide for its language (see the
+  Style guide section) and changed prose against the Documentation style
+  guide section.
 - Re-read the template files you changed. Template variables such as
   `{{ cookiecutter.project_name }}` must stay intact.
 - If you did not render the template or run its tests, say so in the pull
