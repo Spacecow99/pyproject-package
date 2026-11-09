@@ -138,6 +138,79 @@ comment). The GitHub write is the one that counts.
 - Use the GitHub MCP tools when they are available. If `gh` is available, it
   is an acceptable substitute.
 
+## Tooling
+
+### AI agent tooling
+
+Agents working in this repository use these skills and tools. Each is a
+third-party project; follow its own README for installation, and treat the
+rules in this file as taking precedence over a skill's defaults.
+
+| Purpose                              | Tool                                                                                  | Use it for |
+|--------------------------------------|---------------------------------------------------------------------------------------|------------|
+| Development workflows                | [superpowers](https://github.com/obra/superpowers)                                    | Brainstorming, planning, implementing, test-driven development, code review and finishing a branch. Its outputs are redirected to GitHub issues as described in "Workflow artifacts live in GitHub issues". |
+| Documentation review workflows       | [riekelt/technical-writer](https://github.com/riekelt/technical-writer)               | Reviewing and rewriting technical prose (its `reviewing-technical-prose` skill and `/prose-review` command), and drafting design docs, decision records, runbooks, changelogs and issues. |
+| Google developer documentation style | [MichaelSatoshi1983/google-dev-docs-style-skill](https://github.com/MichaelSatoshi1983/google-dev-docs-style-skill/) | Applying the Google developer documentation style guide to any prose, as required by "Documentation style guide". |
+| Google coding style guides           | [testdino-hq/google-styleguides-skills](https://github.com/testdino-hq/google-styleguides-skills) | Applying the Google style guide for the language of each file, as required by "Style guide". |
+| Security audit and review            | [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill) | Security audits and review workflows for generated code, run by asking the agent for a security audit of the codebase or a path. |
+
+Rules for using them:
+
+- **Workflow.** Use superpowers for the development workflow. Specs, plans and
+  progress go to GitHub issues, with `.superpowers/` as an untracked cache.
+- **Documentation precedence.** Use technical-writer for documentation review
+  workflows, and the Google developer documentation style skill for the style
+  itself. The Google developer documentation style guide wins when a
+  technical-writer house rule conflicts with it.
+- **Code style.** Load the style guide skill for each language you touch,
+  and follow "Style guide" above.
+- **Security reviews.** Run the security audit skill on generated code, for
+  example by rendering the template into a scratch directory outside the
+  repository and auditing the result. Run builds, tests and other
+  target-controlled code only inside an OS-enforced sandbox with no external
+  networking, because the skill's own requirements call for this. Without such
+  a sandbox, leave a lead as unconfirmed and record it as needing validation
+  instead of executing target code. Record audit findings in GitHub issues,
+  not in committed files. The audit's working files belong in `.superpowers/`
+  or in a scratch directory outside the repository.
+- **Adding or updating a skill.** These skills run with an agent's
+  permissions, so read a skill's files before you install or update it, install
+  from the repository named above, and record any change to this table in the
+  same pull request.
+
+### Development tooling
+
+The template configures these tools. They are declared in
+`{{cookiecutter.project_name}}/pyproject.toml` and apply to projects generated
+from the template. The optional dependency groups are `dev`, `test` and `docs`.
+
+| Purpose              | Tool                                  | Configuration and use |
+|----------------------|---------------------------------------|-----------------------|
+| Packaging and build  | Flit (`flit_core` build backend)      | `[build-system]` and `[tool.flit.module]`. Build with `flit build`; install for development with `flit install --symlink`. Part of the `dev` group. |
+| Tests                | pytest                                | Tests live in `tests/`. Run `pytest tests`. Part of the `test` group. |
+| Test matrix          | Tox                                   | `[tool.tox]` runs `py37` through `py315`. Run `tox` when those interpreters are installed. Part of the `test` group. |
+| Formatting           | Black                                 | `[tool.black]`: line length 80, targets `py37` through `py315`. Check with `black --check .`. Part of the `dev` group. |
+| Linting              | Pylint                                | `[tool.pylint.*]`. Run `pylint <package name>`. Part of the `dev` group. |
+| Security scanning    | Bandit                                | `[tool.bandit]`. Run `bandit -r <package name>`. Part of the `dev` group. |
+| Documentation        | Sphinx, `sphinx-rtd-theme`, MyST      | `docs/` with a Makefile. Pages are Markdown through `myst-parser`. Part of the `docs` group. |
+| Continuous integration | GitHub Actions                      | `.github/workflows/ci.yml` tests Python 3.7 through 3.15, builds with Flit, and attaches the distributions to a published GitHub Release. |
+| Development environment | Dev container and VS Code workspace | `.devcontainer/devcontainer.json` (also used by GitHub Codespaces) and a `.code-workspace` file named from `project_name`. |
+| Template rendering   | Cookiecutter                          | `cookiecutter.json` defines the variables. Render with `cookiecutter . --no-input --output-dir <scratch directory>`. |
+
+Rules for using them:
+
+- **Where the commands run.** This repository is the template, so it has no
+  test suite of its own. To verify a change, render the template into a
+  scratch directory outside the repository and run the commands above in the
+  generated project.
+- **Keep the tooling aligned.** When you change a supported Python version,
+  update the Tox `envlist`, the Black `target-version`, the CI matrix and the
+  `requires-python` setting together.
+- **Do not weaken the configuration.** Do not loosen Black, Pylint, Bandit or
+  CI settings to make a change pass; see "Style guide".
+- **Keep template variables intact.** Cookiecutter variables such as
+  `{{ cookiecutter.project_name }}` must survive every edit to these files.
+
 ## Style guide
 
 All code and markup in this repository, and in anything the template
