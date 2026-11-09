@@ -40,8 +40,8 @@ branches" below.
    that GitHub only auto-closes issues when the pull request merges into the
    default branch (`main`), so issues resolved on `dev` stay open until `dev`
    is merged; close them manually with a comment if they must be closed sooner.
-8. After a feature branch is merged, delete it. If you cannot delete it, tell
-   the owner. Do not reuse a merged branch for new work; create a new
+8. After a feature branch is merged, delete it. If you cannot delete it, ask
+   the owner to (see "Agent branches", step 7). Do not reuse a merged branch for new work; create a new
    `feature/<name>` branch from the latest `dev`. (The assigned agent branch
    is the exception; see "Agent branches".)
 9. Do not rewrite history on `main` or `dev`. Never force-push to them.
@@ -64,8 +64,9 @@ the same way. The model then has one more level:
 2. **Keep unmerged work.** If the assigned branch has commits that are not in
    `dev`, keep them and merge `origin/dev` into the branch rather than
    resetting it.
-3. **Try a feature branch, then fall back.** Create `feature/<feature name>`
-   from the assigned branch and push it:
+3. **Create a feature branch.** A remote session can push a new
+   `feature/<feature name>` branch (verified on 2026-11-09), so create it from
+   the assigned branch and push it:
 
    ```shell
    git checkout -b feature/FEATURE_NAME ASSIGNED_BRANCH
@@ -75,7 +76,8 @@ the same way. The model then has one more level:
    Replace `FEATURE_NAME` and `ASSIGNED_BRANCH` with your values. If the push
    is refused, for example with HTTP 403, do not look for a workaround. Return
    to the assigned branch, make the commits there instead, and say in the pull
-   request description that the feature branch could not be pushed.
+   request description that the feature branch could not be pushed. Permissions
+   can change, so try the push each time.
 4. **Pull requests.** Open a feature branch's pull request into the assigned
    branch. Open the assigned branch's pull request into `dev`. If you worked
    directly on the assigned branch, open one pull request into `dev`.
@@ -84,9 +86,29 @@ the same way. The model then has one more level:
 6. **No other branches.** Push only to the assigned branch and to the
    `feature/<feature name>` branches you create under step 3. Do not push to
    any other branch without explicit permission.
-7. **Cleaning up.** After a feature branch merges into the assigned branch,
-   delete it if you can. If you cannot, tell the owner. Enabling "Automatically
-   delete head branches" in the repository settings removes the need.
+7. **Cleaning up.** A remote session cannot delete remote branches: deleting a
+   branch with `git push origin --delete` is refused with HTTP 403 (verified on
+   2026-11-09), and the available GitHub tools have no delete-branch action. Do
+   not look for a workaround. Instead, ask the maintainer to delete every
+   feature branch you push, in both of these ways:
+   1. **Add a task to the issue.** When you create the feature branch, add a
+      task for the human maintainer to the issue you are working on, in the
+      issue body, for example
+      `- [ ] Maintainer: delete branch feature/FEATURE_NAME after it merges`.
+      Replace `FEATURE_NAME` with the branch name. If the work has no issue,
+      add the task as a comment on the pull request. Check the box only after
+      the branch is gone.
+   2. **Ask in the session.** Say to the maintainer, in your chat with them,
+      that the branch needs deleting. Name the branch and include the
+      command to run, for example
+      `git push origin --delete feature/FEATURE_NAME`. Ask once the feature
+      branch has merged, and again in your final message of the session if the
+      branch still exists. Do not assume the maintainer has seen the issue
+      task.
+
+   Enabling "Automatically delete head branches" in the repository settings
+   deletes branches that merge through a pull request, but it does not remove
+   a branch that never had one.
 
 If a task names a different branch to develop on, follow the task's
 instructions for it, and still base it on `dev`.
