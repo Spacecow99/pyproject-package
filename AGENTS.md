@@ -51,15 +51,21 @@ plans and progress notes are stored in GitHub issues, not in the repository.
 These instructions override the default save locations in the superpowers
 skills.
 
-### Do not create these local files
+### Local files: `.superpowers/` is an untracked cache
 
-- `docs/superpowers/specs/*` (brainstorming design docs)
-- `docs/superpowers/plans/*` (writing-plans implementation plans)
-- `.superpowers/sdd/*/progress.md` (execution ledger)
-- Any other planning, memory or progress markdown files.
-
-Chat-only scratch notes are fine. Anything another session would need to
-resume the work must be written to an issue.
+- Never create or commit `docs/superpowers/specs/*` or
+  `docs/superpowers/plans/*`, or any other planning, memory or progress
+  markdown file inside the tracked tree.
+- The superpowers skills and their scripts may read and write files under the
+  repository-root `.superpowers/` folder (for example the execution ledger at
+  `.superpowers/sdd/<plan>/progress.md`, task briefs, and working copies of the
+  spec or plan). That folder is a disposable local cache. It is listed in
+  `.gitignore` and must never be committed or force-added.
+- GitHub issues are the source of truth. Every fact in `.superpowers/` must
+  also be written to the matching issue, and the container may be destroyed at
+  any time. If the cache and GitHub disagree, GitHub wins.
+- Never treat a local file as the only record of a decision, plan or
+  completed task.
 
 ### Issue layout
 
@@ -98,10 +104,30 @@ One feature maps to one parent issue plus one sub-issue per plan task.
 
 ### Resuming in a new session or after context compaction
 
-Trust GitHub over memory. Read, in order: the feature issue body, the
-`## Implementation plan` comment, the sub-issues' states and closing comments,
-the `Ruling:` comments, and `git log` on the feature branch. Continue from the
-first open sub-issue. Do not redo tasks whose sub-issues are closed.
+Trust GitHub over memory and over any local cache. Read, in order: the
+feature issue body, the `## Implementation plan` comment, the sub-issues'
+states and closing comments, the `Ruling:` comments, and `git log` on the
+feature branch.
+
+Then rebuild `.superpowers/` before running any skill script, because the
+skills trust the ledger over recollection and it will be empty or stale in a
+fresh container:
+
+1. Write the spec and plan back out as working copies under `.superpowers/`
+   from the issue body and the plan comment.
+2. Recreate the ledger with the header the skill expects, a
+   `Task <N>: complete` line for each closed sub-issue (use the commit SHA
+   from its closing comment), and a `Ruling:` line for each `Ruling:` comment.
+3. If `git log` shows a task commit whose sub-issue is still open, re-run that
+   task's verification and, if it passes, close the sub-issue with a comment
+   before continuing.
+
+Continue from the first open sub-issue. Do not redo tasks whose sub-issues are
+closed.
+
+Whenever a skill script appends to the ledger, make the matching GitHub update
+in the same step (close the sub-issue with its comment, or post the `Ruling:`
+comment). The GitHub write is the one that counts.
 
 ### Conventions
 
