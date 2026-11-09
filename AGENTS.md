@@ -32,7 +32,7 @@ branches" below.
    When your agent forces its own branch, create the feature branch from that
    agent branch instead (see "Agent branches").
 4. Never commit directly to `main` or `dev`. Open a pull request from the
-   feature branch into `dev`.
+   feature branch into `dev`, or into the agent branch when one is forced.
 5. Changes reach `main` only through a pull request from `dev` into `main`.
 6. Never open a pull request from a feature branch directly into `main`.
 7. Keep each feature branch focused on one change. If the change references a
