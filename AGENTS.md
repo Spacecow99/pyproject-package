@@ -29,6 +29,8 @@ branches" below.
 3. Create feature branches from the latest `dev`, never from `main` and never
    from another feature branch:
    `git fetch origin dev && git checkout -b feature/<name> origin/dev`
+   When your agent forces its own branch, create the feature branch from that
+   agent branch instead (see "Agent branches").
 4. Never commit directly to `main` or `dev`. Open a pull request from the
    feature branch into `dev`.
 5. Changes reach `main` only through a pull request from `dev` into `main`.
