@@ -294,12 +294,123 @@ Rules agents must apply:
 In the template, keep Cookiecutter variables such as
 `{{ cookiecutter.project_name }}` intact while editing prose around them.
 
+## Template authoring: Jinja pitfalls
+
+Every file under `{{cookiecutter.project_name}}/` is rendered by Cookiecutter
+with Jinja, including file and directory names. Rendering fails if a file
+contains Jinja syntax that Cookiecutter cannot evaluate. This already happened:
+the CI workflow used GitHub Actions expressions such as
+`${{ matrix.python-version }}`, Jinja treated them as variables, and the
+template could not be rendered at all (`'matrix' is undefined`).
+
+- **Wrap literal delimiters in `raw`.** Any literal `{{`, `}}`, `{%`, `%}`,
+  `{#` or `#}` in a template file, such as a GitHub Actions expression, must
+  sit inside a `{% raw %}` ... `{% endraw %}` block. For a whole file, use
+  `{% raw -%}` at the top and `{%- endraw %}` at the bottom so no blank lines
+  are added to the rendered output. The workflow
+  `{{cookiecutter.project_name}}/.github/workflows/ci.yml` is the example.
+- **Undefined names are errors.** An unknown variable stops rendering. Only
+  use the variables defined in `cookiecutter.json`, and add new ones there
+  with a default value.
+- **Whole files without rendering.** If a file has too much literal Jinja
+  syntax to wrap, Cookiecutter's `_copy_without_render` option in
+  `cookiecutter.json` copies it unchanged. Such a file cannot use variables.
+- **Variables inside string literals.** A variable that lands inside a quoted
+  string in Python, TOML, YAML or JSON can break the generated file if its
+  value contains a quote, a backslash or other special characters. When you
+  add or change such a variable, also render once with an unusual value.
+- **Format and lint the rendered output.** Formatters and linters can fail on
+  or reformat Jinja syntax in the template source. Run them on a rendered
+  project, then port any changes back to the template files so the rendered
+  output passes. For example, the quote style in the template
+  `docs/source/conf.py` had to be changed in the template to make
+  `black --check .` pass on the rendered project.
+- **Check for leftovers.** After rendering, the output must contain no
+  unrendered template syntax. This command prints nothing when the render is
+  clean:
+
+  ```shell
+  grep -rIn -E "\{\{ *cookiecutter|\{%" RENDERED_PROJECT_DIRECTORY
+  ```
+
+  Replace `RENDERED_PROJECT_DIRECTORY` with the path of the generated project.
+  GitHub Actions expressions that you wrapped in `raw` are expected in the
+  rendered output and do not match this pattern.
+
+## Definition of done
+
+A change is done only when the checks below have been run and their results
+reported. "It should work" and "I read the files" are not verification.
+
+### Changes to the template
+
+1. **Render it.** Render with default values into a scratch directory outside
+   the repository:
+
+   ```shell
+   cookiecutter . --no-input --output-dir SCRATCH_DIRECTORY
+   ```
+
+   Replace `SCRATCH_DIRECTORY` with a directory outside this repository.
+   Rendering must succeed, and the leftover check in "Jinja pitfalls" must
+   print nothing.
+2. **Run the project checks in the generated project.** From the generated
+   project root, run each of these and read the result:
+
+   ```shell
+   python -m pip install -e .
+   python -m pytest tests
+   black --check .
+   pylint PACKAGE_NAME
+   bandit -r PACKAGE_NAME
+   flit build
+   ```
+
+   Replace `PACKAGE_NAME` with the generated package name. `pytest`,
+   `black --check .`, `bandit` and `flit build` must pass. Pylint currently
+   reports a known baseline on a fresh render: `redefined-builtin` for `sum`,
+   `unused-variable` for `args`, and `unused-import` for `os` and `sys`, plus
+   two `overgeneral-exceptions` configuration warnings. Your change must not
+   add to that baseline. Fixing the baseline is separate work.
+3. **Validate generated YAML and TOML.** If you changed a workflow or
+   `pyproject.toml`, parse the rendered file with a YAML or TOML parser and
+   check that the values you changed came through as intended.
+4. **Say what you could not run.** Some things cannot be run here, such as a
+   GitHub Actions workflow, a dev container build or a Codespaces session.
+   State plainly in the pull request and in the issue that these were not
+   verified. Do not describe them as working.
+
+### Changes to `AGENTS.md` and other prose
+
+Re-read the result against the "Documentation style guide" section. If the
+change touches commands or file paths, run the commands or check the paths
+exist. A prose-only change does not need a render.
+
+### Closing issues
+
+- Verify every acceptance criterion in the issue by running it, not by reading
+  the files. If a criterion cannot be run, say so in a comment and leave the
+  issue open, or ask the owner to confirm it.
+- Close an issue only through a pull request into `main` that contains
+  `Closes #<number>`, or manually with a comment that lists the evidence for
+  each criterion. Never close an issue on the strength of reading the code.
+- If a closed issue turns out not to be satisfied, reopen it and comment with
+  what failed and how you found out.
+
+### Reporting results
+
+Report outcomes as they are. If a check fails, say so and include the relevant
+output. If you skipped a step, say that you skipped it and why. When a check
+passes, say so plainly without hedging.
+
 ## Before you open a pull request
 
 - Check changed code against the Google style guide for its language (see the
   Style guide section) and changed prose against the Documentation style
   guide section.
 - Re-read the template files you changed. Template variables such as
-  `{{ cookiecutter.project_name }}` must stay intact.
-- If you did not render the template or run its tests, say so in the pull
-  request description rather than implying it was verified.
+  `{{ cookiecutter.project_name }}` must stay intact, and literal Jinja
+  delimiters must be wrapped in `raw` (see "Jinja pitfalls").
+- Meet the "Definition of done". If you did not render the template or run its
+  checks, say so in the pull request description rather than implying it was
+  verified.
