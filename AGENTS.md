@@ -144,7 +144,8 @@ All Python code, in this repository and in the template, follows the
 [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html).
 If this section and the Google guide disagree, the Google guide wins, unless
 the repository's tool configuration in `pyproject.toml` explicitly says
-otherwise.
+otherwise. The rules below were checked against the published guide on
+2026-11-09.
 
 Rules agents must apply:
 
@@ -159,7 +160,7 @@ Rules agents must apply:
 - **Naming.** Use `lower_with_under` for modules, packages, functions,
   methods, variables and parameters. Use `CapWords` for classes and
   exceptions. Use `CAPS_WITH_UNDER` for constants. Prefix internal names with
-  a single underscore. Do not shadow built-in names.
+  a single underscore.
 - **Docstrings.** Give every public module, class, function and method a
   docstring in triple double quotes. Start with a one-line summary that ends
   with a period. Document arguments, return values and raised exceptions in
@@ -167,18 +168,28 @@ Rules agents must apply:
 - **Type annotations.** Annotate the signatures of public functions and
   methods. Keep annotations compatible with the Python versions the project
   supports (see `requires-python` in `pyproject.toml`).
-- **Language use.** Never use mutable default arguments. Compare to `None`
-  with `is` or `is not`. Do not use semicolons to join statements. Catch
-  specific exceptions rather than using a bare `except:`. Use f-strings or
-  `str.format` for formatting; do not build strings with `+` in loops.
+- **Language use.** Never use mutable objects as default argument values.
+  Compare to `None` with `is` or `is not`. Do not end lines with semicolons or
+  use them to join statements. Do not use a bare `except:`, and do not catch
+  `Exception` unless you re-raise it or are creating an isolation point that
+  records and suppresses errors. Format strings with an f-string, the `%`
+  operator or `str.format`, and do not format with `+`. For logging calls that
+  take a pattern string, pass a string literal with `%` placeholders and
+  arguments, not an f-string.
 - **Comments.** Explain why, not what. Write TODOs as
-  `# TODO: <link or issue> - <explanation>`.
+  `# TODO(<link to issue>): <explanation>`, for example
+  `# TODO(github.com/Spacecow99/pyproject-package/issues/123): Remove the shim.`
+  Do not put a person or team name in the parentheses (the older
+  `# TODO: <link> - <explanation>` form is discouraged).
 - **Tests.** Name test files `test_*.py` and test functions `test_*` with a
   descriptive name, and keep them under `tests/`.
 - **Linting.** Run Pylint and Bandit as documented in
-  `.claude/INSTRUCTIONS.md` of generated projects. Fix findings in new code
-  rather than adding suppressions. If a suppression is unavoidable, scope it
-  to one line and explain why.
+  `.claude/INSTRUCTIONS.md` of generated projects. Do not shadow built-in
+  names (Pylint reports this as `redefined-builtin`). Fix findings in new code
+  rather than adding suppressions. If a suppression is appropriate, use a
+  line-level comment with the symbolic message name, for example
+  `# pylint: disable=invalid-name`, and add an explanation when the name alone
+  does not make the reason clear.
 
 ## Documentation style guide
 
@@ -191,11 +202,13 @@ the Style guide section above, and the rules here apply to their wording.
 Rules agents must apply:
 
 - **Voice and tone.** Write in a conversational but professional tone. Address
-  the reader as "you". Use active voice and present tense. Avoid
-  "please", and avoid filler such as "simply", "just" and "easily".
+  the reader as "you". Use active voice and present tense. Do not
+  use "please" in instructions, and avoid "easy" and "easily", because what is
+  easy for you might not be easy for readers.
 - **Headings.** Use sentence case, for example "Install the package", not
-  "Install The Package". Use a heading hierarchy that does not skip levels.
-  Do not end headings with punctuation.
+  "Install The Package". Start task headings with a bare infinitive ("Install
+  the package") and name concepts with noun phrases ("Release process"). Use
+  a heading hierarchy that does not skip levels.
 - **Lists.** Use numbered lists for steps that must happen in order and
   bulleted lists otherwise. Keep items parallel in structure. Capitalize the
   first word of each item, and end items with a period when they are complete
@@ -209,10 +222,10 @@ Rules agents must apply:
 - **Links.** Use descriptive link text that makes sense out of context. Never
   use "click here" or a bare "this link".
 - **Wording.** Use the serial comma. Write "for example" instead of "e.g."
-  and "that is" instead of "i.e.". Spell out an abbreviation on first use.
-  Use inclusive terms such as "allowlist" and "denylist", not "whitelist" and
-  "blacklist" (existing text from upstream tool defaults is the only
-  exception).
+  and "that is" instead of "i.e.". Spell out an abbreviation on first use when readers may not know it.
+  Do not use "whitelist" or "blacklist"; use terms such as "allowlist" and
+  "denylist" as nouns (existing text copied from upstream tool defaults is the
+  only exception). Do not use "allowlist" as a verb.
 - **Consistency.** Use one term for one concept throughout a document, and
   match the capitalization of product and tool names (GitHub, Python, Flit,
   Cookiecutter).
