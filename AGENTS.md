@@ -38,11 +38,31 @@ itself and is not part of generated projects.
 
 ### Session branch override
 
-If a task or the environment names a specific branch to develop on (for
-example an automatically assigned `claude/...` branch), push only to that
-branch and follow the task's instructions for it. Open the pull request into
-`dev` unless told otherwise. Do not push to any other branch without explicit
-permission.
+Remote agent sessions are assigned a branch to develop on, for example
+`claude/brave-hawking-szgbsr`, and can push only to that branch. The owner
+accepts working on the assigned branch instead of a `feature/<name>` branch,
+on one condition: the branch must be based on the latest `dev`, never on
+`main`.
+
+1. **Start from `dev`.** Before any work, fetch and base the assigned branch on
+   `dev`:
+   `git fetch origin dev && git checkout -B <assigned branch> origin/dev`
+   This also applies when the session starts on a fresh clone of `main`, and
+   when the assigned branch already exists and holds only work that has been
+   merged. Rule 8 ("do not reuse a merged branch") does not apply to the
+   assigned branch; reset it to `dev` instead.
+2. **Keep unmerged work.** If the assigned branch has commits that are not in
+   `dev`, keep them and merge `origin/dev` into the branch rather than
+   resetting it.
+3. **Never force-push.** If restarting the branch would require a force push,
+   stop and ask the owner.
+4. **Pull request into `dev`.** Open the pull request into `dev` unless told
+   otherwise, and follow the other rules in this file for the change itself.
+5. **No other branches.** Do not push to any other branch without explicit
+   permission.
+
+If a task names a different branch, follow the task's instructions for it, and
+still base it on `dev`.
 
 ## Workflow artifacts live in GitHub issues
 
